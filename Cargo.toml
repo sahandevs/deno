@@ -207,6 +207,11 @@ yoke = { version = "0.7.4", features = ["derive"] }
 zeromq = { version = "=0.4.0", default-features = false, features = ["tcp-transport", "tokio-runtime"] }
 zstd = "=0.12.4"
 
+opentelemetry = { git = "https://github.com/devsnek/opentelemetry-rust.git", rev = "0992e0ecc5dda2720f9dcbff73a58fd36ad5057f" }
+opentelemetry-otlp = { git = "https://github.com/devsnek/opentelemetry-rust.git", rev = "0992e0ecc5dda2720f9dcbff73a58fd36ad5057f", default-features = false, features = ["logs", "http-proto", "http-json", "reqwest-rustls-webpki-roots"] }
+opentelemetry-semantic-conventions = { git = "https://github.com/devsnek/opentelemetry-rust.git", rev = "0992e0ecc5dda2720f9dcbff73a58fd36ad5057f" }
+opentelemetry_sdk = { git = "https://github.com/devsnek/opentelemetry-rust.git", rev = "0992e0ecc5dda2720f9dcbff73a58fd36ad5057f" }
+
 # crypto
 hkdf = "0.12.3"
 rsa = { version = "0.9.3", default-features = false, features = ["std", "pem", "hazmat"] } # hazmat needed for PrehashSigner in ext/node

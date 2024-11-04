@@ -57,6 +57,7 @@ import * as version from "ext:runtime/01_version.ts";
 import * as os from "ext:runtime/30_os.js";
 import * as timers from "ext:deno_web/02_timers.js";
 import {
+  Console,
   getDefaultInspectOptions,
   getStderrNoColor,
   inspectArgs,
@@ -87,6 +88,8 @@ import {
   workerRuntimeGlobalProperties,
 } from "ext:runtime/98_global_scope_worker.js";
 import { SymbolDispose, SymbolMetadata } from "ext:deno_web/00_infra.js";
+import { otelLog, setTracingEnabled } from "ext:runtime/telemetry.js";
+
 // deno-lint-ignore prefer-primordials
 if (Symbol.metadata) {
   throw "V8 supports Symbol.metadata now, no need to shim it";
@@ -574,6 +577,7 @@ function bootstrapMainRuntime(runtimeOptions, warmup = false) {
       10: serveHost,
       11: serveIsMain,
       12: serveWorkerCount,
+      13: otelEnabled,
     } = runtimeOptions;
 
     if (mode === executionModes.serve) {
@@ -674,9 +678,14 @@ function bootstrapMainRuntime(runtimeOptions, warmup = false) {
     });
     ObjectSetPrototypeOf(globalThis, Window.prototype);
 
+    setTracingEnabled(otelEnabled);
+    if (otelEnabled) {
+      const otelConsole = new Console(otelLog);
+      core.wrapConsole(globalThis.console, otelConsole);
+    }
+
     if (inspectFlag) {
-      const consoleFromDeno = globalThis.console;
-      core.wrapConsole(consoleFromDeno, core.v8Console);
+      core.wrapConsole(globalThis.console, core.v8Console);
     }
 
     event.defineEventHandler(globalThis, "error");
@@ -855,6 +864,7 @@ function bootstrapWorkerRuntime(
       5: hasNodeModulesDir,
       6: argv0,
       7: nodeDebug,
+      13: otelEnabled,
     } = runtimeOptions;
 
     performance.setTimeOrigin(DateNow());
@@ -882,8 +892,13 @@ function bootstrapWorkerRuntime(
     }
     ObjectSetPrototypeOf(globalThis, DedicatedWorkerGlobalScope.prototype);
 
-    const consoleFromDeno = globalThis.console;
-    core.wrapConsole(consoleFromDeno, core.v8Console);
+    setTracingEnabled(otelEnabled);
+    if (otelEnabled) {
+      const otelConsole = new Console(otelLog);
+      core.wrapConsole(globalThis.console, otelConsole);
+    }
+
+    core.wrapConsole(globalThis.console, core.v8Console);
 
     event.defineEventHandler(self, "message");
     event.defineEventHandler(self, "error", undefined, true);

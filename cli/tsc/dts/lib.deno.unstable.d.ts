@@ -1225,6 +1225,84 @@ declare namespace Deno {
     export {}; // only export exports
   }
 
+  /**
+   * @category Telemetry
+   * @experimental
+   */
+  export namespace tracing {
+    export const enabled: boolean;
+
+    type Attribute = string | number | boolean | bigint;
+
+    export class Span implements Disposable {
+      readonly traceId: string;
+      readonly spanId: string;
+      readonly parentSpanId: string;
+      readonly kind: string;
+      readonly name: string;
+      readonly startTime: number;
+      readonly endTime: number;
+      readonly status: null | { code: 1 } | { code: 2; message: string };
+      readonly attributes: Record<string, Attribute>;
+      readonly traceFlags: number;
+
+      /**
+       * Construct a new Span and enter it as the "current" span.
+       */
+      constructor(
+        name: string,
+        kind?: "internal" | "server" | "client" | "producer" | "consumer",
+      );
+
+      /**
+       * Set an attribute on this span.
+       */
+      setAttribute(
+        name: string,
+        value: Attribute,
+      ): void;
+
+      /**
+       * Enter this span as the "current" span.
+       */
+      enter(): void;
+
+      /**
+       * Exit this span as the "current" span and restore the previous one.
+       */
+      exit(): void;
+
+      /**
+       * End this span, and exit it as the "current" span.
+       */
+      end(): void;
+
+      [Symbol.dispose](): void;
+
+      static current(): Span | undefined | null;
+    }
+
+    /**
+     * A SpanExporter compatible with OpenTelemetry.js
+     */
+    export class SpanExporter {}
+
+    /**
+     * A ContextManager compatible with OpenTelemetry.js
+     */
+    export class ContextManager {}
+
+    export {}; // only export exports
+  }
+
+  /**
+   * @category Telemetry
+   * @experimental
+   */
+  export namespace metrics {
+    export {}; // only export exports
+  }
+
   export {}; // only export exports
 }
 
