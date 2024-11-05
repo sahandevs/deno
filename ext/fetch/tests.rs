@@ -71,6 +71,7 @@ async fn run_test_client(
       client_cert_chain_and_key: None,
       pool_max_idle_per_host: None,
       pool_idle_timeout: None,
+      resolver: Default::default(),
       http1: true,
       http2: true,
     },
